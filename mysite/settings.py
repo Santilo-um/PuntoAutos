@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'myapp.apps.MyappConfig',
     'rest_framework',
     'corsheaders',
+    'user_management.apps.UserManagementConfig',
 ]
 
 MIDDLEWARE = [
