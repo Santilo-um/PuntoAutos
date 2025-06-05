@@ -5,7 +5,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
@@ -25,7 +24,7 @@ class RegistroView(APIView):
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
-        password = request.data.get('contraseña')
+        password = request.data.get('password')
         user = authenticate(request, email=email, password=password)
         if user is not None:
             login(request, user)
