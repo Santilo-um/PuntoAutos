@@ -9,9 +9,6 @@ from .serializer import *
 from .models import *
 
 # ViewSets para el modelo
-class UsuarioView(viewsets.ModelViewSet):
-    serializer_class = UsuarioSerializer
-    queryset = Usuario.objects.all()
 
 class VehiculoView(viewsets.ModelViewSet):
     serializer_class = VehiculoSerializer
