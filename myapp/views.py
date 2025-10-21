@@ -1,44 +1,40 @@
-from django.shortcuts import render
-from rest_framework import viewsets, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import authenticate, login, logout
+from rest_framework import viewsets, permissions
+from .models import Vehiculo, Solicitud
+from .serializer import VehiculoSerializer, SolicitudSerializer
 
-from .serializer import *
-from .models import *
+# Permiso personalizado: solo el vendedor o un admin puede modificar/eliminar
+class IsVendedorOrAdmin(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.vendedor or request.user.is_staff or request.user.is_superuser
 
-# ViewSets para el modelo
 
-class VehiculoView(viewsets.ModelViewSet):
-    serializer_class = VehiculoSerializer
+class VehiculoViewSet(viewsets.ModelViewSet):
     queryset = Vehiculo.objects.all()
+    serializer_class = VehiculoSerializer
 
-class SolcitudesView(viewsets.ModelViewSet):
-    serializer_class = SolicitudesSerializer
-    queryset = Solicitudes.objects.all()
+    def perform_create(self, serializer):
+        serializer.save(vendedor=self.request.user)
 
-# Login API View
-class LoginView(APIView):
-    def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return Response({
-                "message": "Login exitoso",
-                "username": user.username,
-                "role": getattr(user, 'role', 'N/A')  # Solo si tiene role
-            }, status=status.HTTP_200_OK)
-        return Response({"error": "Credenciales inválidas"}, status=status.HTTP_400_BAD_REQUEST)
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update', 'destroy']:
+            return [IsVendedorOrAdmin()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
 
-# Logout API View
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+class SolicitudViewSet(viewsets.ModelViewSet):
+    queryset = Solicitud.objects.all()
+    serializer_class = SolicitudSerializer
 
-    def post(self, request):
-        logout(request)
-        return Response({"message": "Logout exitoso"}, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Solicitud.objects.all()
+        return Solicitud.objects.filter(solicitante=user) | Solicitud.objects.filter(vehiculo__vendedor=user)
 
+    def perform_create(self, serializer):
+        serializer.save(solicitante=self.request.user)
+
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
     

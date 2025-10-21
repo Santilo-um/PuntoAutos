@@ -21,12 +21,13 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from user_management.views import UsuarioView
 
 router = routers.DefaultRouter()
-router.register(r'usuarios', UsuarioView)
+router.register(r'usuarios', UsuarioView)  # Esto expone /api/usuarios/
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('myapp.urls')),
+    path('api/', include(router.urls)),                 # Incluye usuarios, vehículos, solicitudes
+    path('api/', include('myapp.urls')),                # Incluye vehículos y solicitudes
+    path('auth/', include('user_management.urls')),     # Registro, login, logout, protegida
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/usuarios/', include('user_management.urls')),
 ]
