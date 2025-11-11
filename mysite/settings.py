@@ -25,8 +25,9 @@ SECRET_KEY = 'django-insecure-h((7n=n$yo%%+t5*8v2lqnkiidvw-nl52a3m#7(+7j&#ntr_0q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 # Application definition
 
@@ -84,7 +85,7 @@ DATABASES = {
         'NAME': 'punto_autos',  
         'USER': 'root',         
         'PASSWORD': 'diagonal',  
-        'HOST': 'localhost',          
+        'HOST': '127.0.0.1',          
         'PORT': '3306',               
         'OPTIONS': {
             'charset': 'utf8mb4',  
@@ -133,7 +134,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
