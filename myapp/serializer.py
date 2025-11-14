@@ -16,11 +16,6 @@ class VehiculoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("El precio debe ser mayor a cero.")
         return value
 
-    def validate_km(self, value):
-        if value < 0:
-            raise serializers.ValidationError("El kilometraje no puede ser negativo.")
-        return value
-
 class SolicitudSerializer(serializers.ModelSerializer):
     solicitante = serializers.ReadOnlyField(source='solicitante.email')
     vehiculo = serializers.PrimaryKeyRelatedField(queryset=Vehiculo.objects.filter(estado='disponible'))
