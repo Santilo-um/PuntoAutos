@@ -8,6 +8,11 @@ from django.http import JsonResponse
 from .models import Usuario
 from .serializer import UsuarioSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from myapp.models import Vehiculo, Solicitud
+from myapp.serializer import VehiculoSerializer, SolicitudSerializer
 
 class UsuarioView(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -60,7 +65,24 @@ class VistaProtegida(APIView):
     def get(self, request):
         return Response({'mensaje': f'Hola {request.user.email}, estás autenticado!'})
     
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def perfil_usuario(request):
+    usuario = request.user
 
+    publicaciones = usuario.vehiculos.all()
+    solicitudes_realizadas = usuario.solicitudes.all()
+    solicitudes_recibidas = Solicitud.objects.filter(vehiculo__vendedor=usuario)
+
+    return Response({
+        "usuario": {
+            "id": usuario.id,
+            "email": usuario.email,
+        },
+        "publicaciones": VehiculoSerializer(publicaciones, many=True).data,
+        "solicitudes_realizadas": SolicitudSerializer(solicitudes_realizadas, many=True).data,
+        "solicitudes_recibidas": SolicitudSerializer(solicitudes_recibidas, many=True).data,
+    })
     
 
 
