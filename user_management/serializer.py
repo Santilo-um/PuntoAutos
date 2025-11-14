@@ -10,9 +10,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
             'nombre': {'required': False},
             'telefono': {'required': False},
-            'rol': {'read_only': True},  # Evita que el usuario se asigne rol manualmente
+            'rol': {'read_only': True},
         }
-        
 
     def validate_password(self, value):
         if len(value) < 6:
@@ -20,5 +19,15 @@ class UsuarioSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        return Usuario.objects.create_user(**validated_data)
-    
+        password = validated_data.pop("password")
+        user = Usuario(**validated_data)
+        user.set_password(password)  # ✅ encripta la contraseña
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.get('password', None)
+        if password:
+            instance.set_password(password)
+            validated_data.pop('password')
+        return super().update(instance, validated_data)

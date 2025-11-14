@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from .models import Usuario
 from .serializer import UsuarioSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class UsuarioView(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -32,9 +33,18 @@ class LoginView(APIView):
         user = authenticate(request, email=email, password=password)
 
         if user is not None:
-            login(request, user)
-            return JsonResponse({'mensaje': 'Inicio de sesión exitoso', 'usuario': user.email})
-        return JsonResponse({'error': 'Credenciales inválidas'}, status=400)
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'nombre': user.nombre,
+                    'rol': user.rol
+                }
+            })
+        return Response({'error': 'Credenciales inválidas'}, status=401)
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]

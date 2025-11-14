@@ -4,10 +4,12 @@ from user_management.models import Usuario
 
 class VehiculoSerializer(serializers.ModelSerializer):
     vendedor = serializers.ReadOnlyField(source='vendedor.email')
+    imagen = serializers.ImageField(required=False)
 
     class Meta:
         model = Vehiculo
         fields = '__all__'
+        read_only_fields = ['vendedor', 'fecha_publicacion']
 
     def validate_precio(self, value):
         if value <= 0:
@@ -26,6 +28,8 @@ class SolicitudSerializer(serializers.ModelSerializer):
     class Meta:
         model = Solicitud
         fields = '__all__'
+        read_only_fields = ['solicitante', 'fecha']
+
 
     def validate(self, data):
         solicitante = self.context['request'].user

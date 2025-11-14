@@ -8,14 +8,12 @@ TIPO_CHOICES = [
     ('camioneta', 'Camioneta'),
 ]
 
-# Estados del vehículo
 ESTADO_CHOICES = [
     ('disponible', 'Disponible'),
     ('vendido', 'Vendido'),
     ('pausado', 'Pausado'),
 ]
 
-# Estados de la solicitud
 SOLICITUD_ESTADO_CHOICES = [
     ('pendiente', 'Pendiente'),
     ('aceptada', 'Aceptada'),
@@ -23,13 +21,13 @@ SOLICITUD_ESTADO_CHOICES = [
 ]
 
 class Vehiculo(models.Model):
+    activo = models.BooleanField(default=True)
     marca = models.CharField(max_length=100)
     modelo = models.CharField(max_length=100)
     año = models.IntegerField(validators=[MinValueValidator(1900), MaxValueValidator(2100)])
     precio = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    km = models.IntegerField(validators=[MinValueValidator(0)])
+    imagen = models.ImageField(upload_to='vehiculos/', null=True, blank=True)
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
-    color = models.CharField(max_length=20)
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='disponible')
     descripcion = models.TextField(blank=True, null=True)
     fecha_publicacion = models.DateTimeField(auto_now_add=True)
@@ -44,6 +42,7 @@ class Vehiculo(models.Model):
 
     def pausado(self):
         return self.estado == 'pausado'
+
 
 class Solicitud(models.Model):
     mensaje = models.TextField(blank=True, null=True)
