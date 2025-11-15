@@ -51,3 +51,49 @@ class SolicitudViewSet(viewsets.ModelViewSet):
         if self.action in ['update', 'partial_update']:
             return [permissions.IsAuthenticated()]
         return [permissions.IsAuthenticatedOrReadOnly()]
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def aceptar_solicitud(request, pk):
+    try:
+        solicitud = Solicitud.objects.get(id=pk)
+    except Solicitud.DoesNotExist:
+        return Response({"error": "Solicitud no encontrada"}, status=404)
+
+    # Solo el vendedor del vehículo puede aceptar
+    if solicitud.vehiculo.vendedor != request.user:
+        return Response({"error": "No autorizado"}, status=403)
+
+    solicitud.estado = "aceptada"
+    solicitud.save()
+
+    return Response({
+        "mensaje": "Solicitud aceptada correctamente",
+        "solicitud_id": solicitud.id,
+        "estado": solicitud.estado,
+    }, status=200)
+
+
+# -----------------------------
+#  RECHAZAR SOLICITUD
+# -----------------------------
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def rechazar_solicitud(request, pk):
+    try:
+        solicitud = Solicitud.objects.get(id=pk)
+    except Solicitud.DoesNotExist:
+        return Response({"error": "Solicitud no encontrada"}, status=404)
+
+    # Solo el vendedor del vehículo puede rechazar
+    if solicitud.vehiculo.vendedor != request.user:
+        return Response({"error": "No autorizado"}, status=403)
+
+    solicitud.estado = "rechazada"
+    solicitud.save()
+
+    return Response({
+        "mensaje": "Solicitud rechazada correctamente",
+        "solicitud_id": solicitud.id,
+        "estado": solicitud.estado,
+    }, status=200)

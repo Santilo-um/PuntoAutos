@@ -32,7 +32,7 @@ class Vehiculo(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     fecha_publicacion = models.DateTimeField(auto_now_add=True)
     vendedor = models.ForeignKey('user_management.Usuario', on_delete=models.CASCADE, related_name='vehiculos')
-
+    
     def __str__(self):
         return f"{self.marca} {self.modelo} ({self.año})"
 

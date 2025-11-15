@@ -13,6 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from myapp.models import Vehiculo, Solicitud
 from myapp.serializer import VehiculoSerializer, SolicitudSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 class UsuarioView(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
@@ -64,25 +66,68 @@ class VistaProtegida(APIView):
 
     def get(self, request):
         return Response({'mensaje': f'Hola {request.user.email}, estás autenticado!'})
-    
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def perfil_usuario(request):
-    usuario = request.user
 
-    publicaciones = usuario.vehiculos.all()
-    solicitudes_realizadas = usuario.solicitudes.all()
-    solicitudes_recibidas = Solicitud.objects.filter(vehiculo__vendedor=usuario)
 
-    return Response({
-        "usuario": {
-            "id": usuario.id,
-            "email": usuario.email,
-        },
-        "publicaciones": VehiculoSerializer(publicaciones, many=True).data,
-        "solicitudes_realizadas": SolicitudSerializer(solicitudes_realizadas, many=True).data,
-        "solicitudes_recibidas": SolicitudSerializer(solicitudes_recibidas, many=True).data,
-    })
+class PerfilView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Vehículos publicados por este usuario
+        publicaciones = Vehiculo.objects.filter(vendedor=user)
+
+        publicaciones_data = []
+        for v in publicaciones:
+            publicaciones_data.append({
+                "vehiculo_id": v.id,
+                "marca": v.marca,
+                "modelo": v.modelo,
+                "precio": float(v.precio),
+                "estado": v.estado,
+                "solicitudes": [
+                    {
+                        "id": s.id,
+                        "estado": s.estado,
+                        "mensaje": s.mensaje,
+                        "fecha_solicitud": s.fecha_solicitud,
+                        "solicitante": {
+                            "id": s.solicitante.id,
+                            "email": s.solicitante.email,
+                        }
+                    }
+                    for s in v.solicitudes.all()
+                ]
+            })
+
+        # Solicitudes enviadas por este usuario
+        solicitudes_enviadas = Solicitud.objects.filter(solicitante=user)
+
+        solicitudes_enviadas_data = [
+            {
+                "id": s.id,
+                "estado": s.estado,
+                "mensaje": s.mensaje,
+                "vehiculo": {
+                    "id": s.vehiculo.id,
+                    "marca": s.vehiculo.marca,
+                    "modelo": s.vehiculo.modelo,
+                },
+                "fecha_solicitud": s.fecha_solicitud,
+            }
+            for s in solicitudes_enviadas
+        ]
+
+        return Response({
+            "usuario": {
+                "id": user.id,
+                "email": user.email
+            },
+            "publicaciones": publicaciones_data,
+            "solicitudes_enviadas": solicitudes_enviadas_data
+        })
+
     
 
 
