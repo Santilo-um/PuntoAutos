@@ -95,6 +95,7 @@ class PerfilView(APIView):
                         "solicitante": {
                             "id": s.solicitante.id,
                             "email": s.solicitante.email,
+                            "telefono": s.solicitante.telefono,
                         }
                     }
                     for s in v.solicitudes.all()
@@ -128,6 +129,17 @@ class PerfilView(APIView):
             "solicitudes_enviadas": solicitudes_enviadas_data
         })
 
+class ActualizarTelefonoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        telefono = request.data.get("telefono")
+
+        if telefono is None:
+            return Response({"error": "Debes enviar un teléfono"}, status=400)
+
+        request.user.telefono = telefono
+        request.user.save()
+
+        return Response({"mensaje": "Teléfono actualizado correctamente"})
     
-
-
