@@ -16,15 +16,21 @@ class IsVendedorOrAdmin(permissions.BasePermission):
 class VehiculoViewSet(viewsets.ModelViewSet):
     queryset = Vehiculo.objects.all()
     serializer_class = VehiculoSerializer
-
+    permission_classes = [IsAuthenticated]
+    
     def get_queryset(self):
         if self.action == 'list':
             return Vehiculo.objects.filter(activo=True)
         return Vehiculo.objects.all()
 
-
     def perform_create(self, serializer):
         serializer.save(vendedor=self.request.user)
+        
+    def perform_destroy(self, instance):
+        # Solo el dueño puede eliminarlo
+        if instance.vendedor != self.request.user:
+            raise PermissionDenied("No puedes eliminar un vehículo que no es tuyo.")
+        return super().perform_destroy(instance)
 
     def get_permissions(self):
         if self.action in ['update', 'partial_update', 'destroy']:
