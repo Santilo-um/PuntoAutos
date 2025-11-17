@@ -6,11 +6,17 @@ from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from .models import Vehiculo, Solicitud
 from .serializer import VehiculoSerializer, SolicitudSerializer
+from rest_framework.exceptions import PermissionDenied
+
 
 # 🔐 Permiso personalizado: solo el vendedor o un admin puede modificar/eliminar
 class IsVendedorOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user == obj.vendedor or request.user.is_staff or request.user.is_superuser
+        return (
+            request.user == obj.vendedor or 
+            getattr(request.user, "is_admin", False) or 
+            getattr(request.user, "is_superuser", False)
+        )
 
 # 🚗 ViewSet de vehículos
 class VehiculoViewSet(viewsets.ModelViewSet):
@@ -27,10 +33,14 @@ class VehiculoViewSet(viewsets.ModelViewSet):
         serializer.save(vendedor=self.request.user)
         
     def perform_destroy(self, instance):
-        # Solo el dueño puede eliminarlo
-        if instance.vendedor != self.request.user:
+        user = self.request.user
+
+        # Solo el dueño o el admin pueden eliminar
+        if instance.vendedor != user and not getattr(user, "is_admin", False):
             raise PermissionDenied("No puedes eliminar un vehículo que no es tuyo.")
+
         return super().perform_destroy(instance)
+
 
     def get_permissions(self):
         if self.action in ['update', 'partial_update', 'destroy']:

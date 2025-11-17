@@ -143,3 +143,46 @@ class ActualizarTelefonoView(APIView):
 
         return Response({"mensaje": "Teléfono actualizado correctamente"})
     
+class AdminCheckView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_admin:
+            return Response({"error": "No autorizado"}, status=403)
+
+        return Response({"admin": True})
+
+class AdminPanelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_admin:
+            return Response({"error": "No autorizado"}, status=403)
+
+        usuarios = UsuarioSerializer(Usuario.objects.all(), many=True).data
+        vehiculos = VehiculoSerializer(Vehiculo.objects.all(), many=True).data
+        solicitudes = SolicitudSerializer(Solicitud.objects.all(), many=True).data
+
+        return Response({
+            "usuarios": usuarios,
+            "vehiculos": vehiculos,
+            "solicitudes": solicitudes
+        })
+        
+class EliminarUsuarioView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, user_id):
+        if not request.user.is_admin:
+            return Response({"error": "No autorizado"}, status=403)
+
+        Usuario = get_user_model()
+        try:
+            user = Usuario.objects.get(id=user_id)
+            user.delete()
+            return Response({"msg": "Usuario eliminado"})
+        except Usuario.DoesNotExist:
+            return Response({"error": "No existe"}, status=404)
+
+
+
