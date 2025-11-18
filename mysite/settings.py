@@ -33,11 +33,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://puntoautos.netlify.app",
 ]
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-]
-
-
 CORS_ALLOW_ALL_ORIGINS = True
 
 SESSION_COOKIE_SECURE = False
@@ -143,7 +138,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -170,7 +165,7 @@ SPECTACULAR_SETTINGS = {
 AUTH_USER_MODEL = 'user_management.Usuario'
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend ',
+    'django.contrib.auth.backends.ModelBackend',
     'user_management.backends.EmailBackend',
 ]
 
