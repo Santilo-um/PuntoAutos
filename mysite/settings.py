@@ -33,6 +33,11 @@ CORS_ALLOWED_ORIGINS = [
     "https://puntoautos.netlify.app",
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 SESSION_COOKIE_SECURE = False
