@@ -33,6 +33,13 @@ CORS_ALLOWED_ORIGINS = [
     "https://puntoautos.netlify.app",
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = "Lax"
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -106,6 +113,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
 
 
 # Internationalization
