@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ["puntoautos-production.up.railway.app", "localhost", "127.0.0.1
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://puntoautos.netlify.app",
 ]
 
 # Application definition
