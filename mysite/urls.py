@@ -19,14 +19,20 @@ from django.urls import path, include
 from rest_framework import routers
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from user_management.views import UsuarioView
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 router = routers.DefaultRouter()
-router.register(r'usuarios', UsuarioView)
+router.register(r'usuarios', UsuarioView)  # Esto expone /api/usuarios/
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('myapp.urls')),
+    path('api/', include(router.urls)),                 # Incluye usuarios, vehículos, solicitudes
+    path('', include('myapp.urls')),                # Incluye vehículos y solicitudes
+    path('auth/', include('user_management.urls')),     # Registro, login, logout, protegida
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/usuarios/', include('user_management.urls')),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,13 +1,15 @@
-from django.urls import path, include 
+from django.urls import path, include
 from rest_framework import routers
-from .views import VehiculoView, SolcitudesView, LoginView, LogoutView
+from .views import VehiculoViewSet, SolicitudViewSet
+from .views import aceptar_solicitud, rechazar_solicitud
+
 
 router = routers.DefaultRouter()
-router.register(r'Vehiculos', VehiculoView)
-router.register(r'Solicitudes', SolcitudesView)
+router.register(r'vehiculos', VehiculoViewSet)
+router.register(r'solicitudes', SolicitudViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),
-    path('api/login/', LoginView.as_view(), name='login'),
-    path('api/logout/', LogoutView.as_view(), name='logout'),
+    path('', include(router.urls)),
+    path('solicitud/<int:pk>/aceptar/', aceptar_solicitud, name='aceptar_solicitud'),
+    path('solicitud/<int:pk>/rechazar/', rechazar_solicitud, name='rechazar_solicitud'),
 ]
