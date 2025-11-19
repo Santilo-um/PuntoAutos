@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from cloudinary.models import CloudinaryField
 
 # Tipos de vehículo
 TIPO_CHOICES = [
@@ -26,7 +27,7 @@ class Vehiculo(models.Model):
     modelo = models.CharField(max_length=100)
     año = models.IntegerField(validators=[MinValueValidator(1900), MaxValueValidator(2100)])
     precio = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    imagen = models.ImageField(upload_to='vehiculos/', null=True, blank=True)
+    imagen = CloudinaryField("image", folder="vehiculos")
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='disponible')
     descripcion = models.TextField(blank=True, null=True)
